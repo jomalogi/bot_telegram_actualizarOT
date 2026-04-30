@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  claro_bot_agenda:
+    build: .
+    container_name: claro_bot_agenda
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/bot.db
+    networks:
+      - bot_agenda_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api_datos:
+    build: .
+    container_name: claro_api_datos
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/bot.db
+    ports:
+      - "5050:5000"
+    command: ["python", "api_server.py"]
+    networks:
+      - bot_agenda_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  bot_agenda_net:
+    driver: bridge
